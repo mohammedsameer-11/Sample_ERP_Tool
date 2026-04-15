@@ -1,0 +1,63 @@
+<div class="bg-white rounded-xl border border-gray-200 p-5 flex flex-col hover:shadow-md transition-shadow">
+
+    <!-- Category badge + stock status -->
+    <div class="flex items-start justify-between mb-3">
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700">
+            {{ product().category }}
+        </span>
+        <span class="text-xs font-medium px-2 py-0.5 rounded-full" [ngClass]="getStockBadgeClass()">
+            {{ getStockLabel() }}
+        </span>
+    </div>
+
+    <!-- Product name + SKU -->
+    <h3 class="text-sm font-semibold text-gray-900 leading-snug mb-1">
+        {{ product().name }}
+    </h3>
+    <p class="text-xs text-gray-400 font-mono mb-2">{{ product().sku }}</p>
+
+    <!-- Description -->
+    <p class="text-xs text-gray-500 line-clamp-2 flex-1 mb-4">
+        {{ product().description }}
+    </p>
+
+    <!-- Price + Stock bar -->
+    <div class="mb-4">
+        <div class="flex justify-between items-center mb-1.5">
+            <span class="text-lg font-bold text-gray-900">
+                ₹{{ product().price.toLocaleString('en-IN') }}
+            </span>
+            <span class="text-xs text-gray-500">
+                {{ product().stock }} / {{ product().reorderLevel * 4 }} units
+            </span>
+        </div>
+        <!-- Stock level progress bar -->
+        <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500" [ngClass]="getStockBarClass()"
+                [style.width.%]="getStockPercent()"></div>
+        </div>
+    </div>
+
+    <!-- Add stock interaction -->
+    <div class="flex gap-2">
+        <input type="number" [(ngModel)]="addQty" min="1" max="999" class="w-20 px-2 py-1.5 text-sm text-center border border-gray-300 rounded-lg
+                 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none" placeholder="Qty"
+            aria-label="Quantity to add" />
+        <button (click)="handleAddStock()" [disabled]="!addQty || addQty < 1 || isAdding()" class="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5
+                 bg-indigo-600 text-white text-xs font-medium rounded-lg
+                 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed
+                 transition-colors">
+            @if (isAdding()) {
+            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            } @else {
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            }
+            Add Stock
+        </button>
+    </div>
+</div>

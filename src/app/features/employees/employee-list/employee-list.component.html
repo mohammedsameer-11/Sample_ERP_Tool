@@ -1,0 +1,113 @@
+<div class="space-y-5">
+
+    <!-- Page header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Employee Management</h2>
+            <p class="mt-1 text-sm text-gray-500">
+                {{ totalCount() }} employees total · {{ activeCount() }} active
+            </p>
+        </div>
+        <button (click)="openCreatePanel()"
+            class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Employee
+        </button>
+    </div>
+
+    <!-- Filters toolbar -->
+    <div class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row gap-3">
+
+        <!-- Search input with debounce via ngModel -->
+        <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0" />
+            </svg>
+            <input type="search" [(ngModel)]="searchInput" (ngModelChange)="onSearchChange($event)"
+                placeholder="Search by name, email, or role..." class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg
+                   focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none" />
+        </div>
+
+        <!-- Department filter -->
+        <select [(ngModel)]="selectedDept" (ngModelChange)="onDeptChange($event)"
+            class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none min-w-[150px]">
+            <option value="">All Departments</option>
+            @for (dept of departments; track dept) {
+            <option [value]="dept">{{ dept }}</option>
+            }
+        </select>
+
+        <!-- Status filter -->
+        <select [(ngModel)]="selectedStatus" (ngModelChange)="onStatusChange($event)"
+            class="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none min-w-[130px]">
+            <option value="">All Statuses</option>
+            @for (s of statuses; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+            }
+        </select>
+
+        <!-- Clear filters -->
+        @if (hasActiveFilters()) {
+        <button (click)="clearFilters()"
+            class="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap">
+            Clear filters
+        </button>
+        }
+    </div>
+
+    <!-- Data table (dumb component — receives data, emits events) -->
+    <app-employee-table [employees]="employees()" [isLoading]="isLoading()" [currentFilter]="filter()"
+        (sort)="onSort($event)" (editEmployee)="openEditPanel($event)" (deleteEmployee)="onDelete($event)" />
+
+    <!-- Pagination controls -->
+    @if (totalPages() > 1) {
+    <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-500">
+            Showing {{ pageStart() }}–{{ pageEnd() }} of {{ totalCount() }} employees
+        </p>
+
+        <div class="flex items-center gap-1.5">
+            <!-- Previous -->
+            <button (click)="goToPage(filter().page - 1)" [disabled]="filter().page === 1" class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50
+                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                Previous
+            </button>
+
+            <!-- Page numbers -->
+            @for (page of visiblePages(); track page) {
+            @if (page === -1) {
+            <span class="px-2 text-gray-400">…</span>
+            } @else {
+            <button (click)="goToPage(page)" class="w-8 h-8 text-sm rounded-lg transition-colors"
+                [class.bg-indigo-600]="page === filter().page" [class.text-white]="page === filter().page"
+                [class.font-semibold]="page === filter().page" [class.hover:bg-gray-100]="page !== filter().page"
+                [class.text-gray-700]="page !== filter().page">{{ page }}</button>
+            }
+            }
+
+            <!-- Next -->
+            <button (click)="goToPage(filter().page + 1)" [disabled]="filter().page === totalPages()" class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50
+                     disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                Next
+            </button>
+        </div>
+
+        <!-- Page size selector -->
+        <select [value]="filter().pageSize" (change)="onPageSizeChange($event)"
+            class="px-2 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="5">5 / page</option>
+            <option value="10">10 / page</option>
+            <option value="25">25 / page</option>
+        </select>
+    </div>
+    }
+
+    <!-- Slide-out form panel (dumb, receives employee, emits save/close) -->
+    <app-employee-form [employee]="selectedEmployee()" [isOpen]="isPanelOpen()" [isSaving]="isSaving()"
+        (save)="onSave($event)" (close)="closePanelWithConfirm()" />
+
+</div>

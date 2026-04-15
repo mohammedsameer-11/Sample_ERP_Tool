@@ -1,0 +1,130 @@
+<div class="overflow-x-auto rounded-xl border border-gray-200">
+    <table class="w-full text-sm">
+        <thead>
+            <tr class="bg-gray-50 border-b border-gray-200">
+                @for (col of columns; track col.key) {
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                    [ngClass]="{ 'cursor-pointer hover:bg-gray-100 select-none': col.sortable }"
+                    (click)="col.sortable ? sort.emit(col.key) : null">
+                    <div class="flex items-center gap-1.5">
+                        {{ col.label }}
+                        @if (col.sortable) {
+                        <span class="flex flex-col gap-0.5">
+                            <!-- Up chevron: highlighted when sorting ASC by this column -->
+                            <svg class="w-2.5 h-2.5 transition-colors" [ngClass]="currentFilter().sortBy === col.key && currentFilter().sortDir === 'asc'
+                          ? 'text-indigo-600' : 'text-gray-300'" fill="currentColor" viewBox="0 0 10 10">
+                                <path d="M5 2l4 4H1l4-4z" />
+                            </svg>
+                            <!-- Down chevron: highlighted when sorting DESC -->
+                            <svg class="w-2.5 h-2.5 transition-colors" [ngClass]="currentFilter().sortBy === col.key && currentFilter().sortDir === 'desc'
+                          ? 'text-indigo-600' : 'text-gray-300'" fill="currentColor" viewBox="0 0 10 10">
+                                <path d="M5 8L1 4h8l-4 4z" />
+                            </svg>
+                        </span>
+                        }
+                    </div>
+                </th>
+                }
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Actions
+                </th>
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+            @if (isLoading()) {
+            <!-- Skeleton rows during loading -->
+            @for (i of [1,2,3,4,5]; track i) {
+            <tr>
+                @for (col of columns; track col.key) {
+                <td class="px-4 py-3">
+                    <div class="h-4 bg-gray-100 rounded animate-pulse" [style.width]="col.skeletonWidth"></div>
+                </td>
+                }
+                <td class="px-4 py-3">
+                    <div class="h-4 bg-gray-100 rounded animate-pulse w-16 ml-auto"></div>
+                </td>
+            </tr>
+            }
+            } @else if (employees().length === 0) {
+            <tr>
+                <td [attr.colspan]="columns.length + 1" class="px-4 py-12 text-center">
+                    <div class="flex flex-col items-center gap-2 text-gray-400">
+                        <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <p class="text-sm font-medium">No employees found</p>
+                        <p class="text-xs">Try adjusting your search or filter criteria</p>
+                    </div>
+                </td>
+            </tr>
+            } @else {
+            @for (emp of employees(); track emp.id) {
+            <tr class="hover:bg-gray-50 transition-colors">
+                <!-- Avatar + Name -->
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold shrink-0">
+                            {{ emp.firstName[0] }}{{ emp.lastName[0] }}
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">{{ emp.firstName }} {{ emp.lastName }}</p>
+                            <p class="text-xs text-gray-400">{{ emp.email }}</p>
+                        </div>
+                    </div>
+                </td>
+
+                <!-- Department -->
+                <td class="px-4 py-3 text-gray-600">{{ emp.department }}</td>
+
+                <!-- Role -->
+                <td class="px-4 py-3 text-gray-600 max-w-[180px] truncate">{{ emp.role }}</td>
+
+                <!-- Status badge -->
+                <td class="px-4 py-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        [ngClass]="getStatusClass(emp.status)">
+                        <span class="w-1.5 h-1.5 rounded-full mr-1.5" [ngClass]="getStatusDotClass(emp.status)"></span>
+                        {{ formatStatus(emp.status) }}
+                    </span>
+                </td>
+
+                <!-- Salary -->
+                <td class="px-4 py-3 text-gray-700 font-medium">
+                    ₹{{ (emp.salary / 100000).toFixed(1) }}L
+                </td>
+
+                <!-- Hire Date -->
+                <td class="px-4 py-3 text-gray-500 text-xs">
+                    {{ formatDate(emp.hireDate) }}
+                </td>
+
+                <!-- Action buttons -->
+                <td class="px-4 py-3 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <button (click)="editEmployee.emit(emp)"
+                            class="p-1.5 rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                            [attr.aria-label]="'Edit ' + emp.firstName + ' ' + emp.lastName">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button (click)="deleteEmployee.emit(emp.id)"
+                            class="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            [attr.aria-label]="'Delete ' + emp.firstName + ' ' + emp.lastName">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            }
+            }
+        </tbody>
+    </table>
+</div>

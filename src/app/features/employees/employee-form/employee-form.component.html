@@ -1,0 +1,192 @@
+<!-- Slide-over backdrop -->
+@if (isOpen()) {
+<div class="fixed inset-0 bg-black/40 z-40 transition-opacity" (click)="close.emit()" aria-hidden="true"></div>
+}
+
+<!-- Slide panel -->
+<div class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50
+             transform transition-transform duration-300 flex flex-col" [class.translate-x-0]="isOpen()"
+    [class.translate-x-full]="!isOpen()" role="dialog"
+    [attr.aria-label]="isEditMode() ? 'Edit employee' : 'Add new employee'" aria-modal="true">
+    <!-- Panel header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+        <div>
+            <h2 class="text-lg font-semibold text-gray-900">
+                {{ isEditMode() ? 'Edit Employee' : 'Add New Employee' }}
+            </h2>
+            <p class="text-xs text-gray-500 mt-0.5">
+                {{ isEditMode() ? 'Update employee record' : 'Fill in the details below' }}
+            </p>
+        </div>
+        <button (click)="close.emit()"
+            class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            aria-label="Close panel">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Form body — scrollable -->
+    <div class="flex-1 overflow-y-auto px-6 py-5">
+        <form [formGroup]="form" (ngSubmit)="handleSubmit()" id="employee-form" novalidate>
+
+            <!-- Name row -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="firstName" class="block text-xs font-medium text-gray-700 mb-1.5">
+                        First Name <span class="text-red-500">*</span>
+                    </label>
+                    <input id="firstName" type="text" formControlName="firstName"
+                        class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                        [ngClass]="{
+                  'border-red-300 bg-red-50': isFieldInvalid('firstName'),
+                  'border-gray-300': !isFieldInvalid('firstName')
+                }" placeholder="Sarah" />
+                    @if (isFieldInvalid('firstName')) {
+                    <p class="mt-1 text-xs text-red-600">{{ getFieldError('firstName') }}</p>
+                    }
+                </div>
+
+                <div>
+                    <label for="lastName" class="block text-xs font-medium text-gray-700 mb-1.5">
+                        Last Name <span class="text-red-500">*</span>
+                    </label>
+                    <input id="lastName" type="text" formControlName="lastName"
+                        class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                        [ngClass]="{
+                  'border-red-300 bg-red-50': isFieldInvalid('lastName'),
+                  'border-gray-300': !isFieldInvalid('lastName')
+                }" placeholder="Johnson" />
+                    @if (isFieldInvalid('lastName')) {
+                    <p class="mt-1 text-xs text-red-600">{{ getFieldError('lastName') }}</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-4">
+                <label for="email" class="block text-xs font-medium text-gray-700 mb-1.5">
+                    Email Address <span class="text-red-500">*</span>
+                </label>
+                <input id="email" type="email" formControlName="email"
+                    class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition"
+                    [ngClass]="{
+                'border-red-300 bg-red-50': isFieldInvalid('email'),
+                'border-gray-300': !isFieldInvalid('email')
+              }" placeholder="sarah.johnson@corp.com" />
+                @if (isFieldInvalid('email')) {
+                <p class="mt-1 text-xs text-red-600">{{ getFieldError('email') }}</p>
+                }
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-4">
+                <label for="phone" class="block text-xs font-medium text-gray-700 mb-1.5">
+                    Phone Number
+                </label>
+                <input id="phone" type="tel" formControlName="phone"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    placeholder="+91-98765-43210" />
+            </div>
+
+            <!-- Department + Role row -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="department" class="block text-xs font-medium text-gray-700 mb-1.5">
+                        Department <span class="text-red-500">*</span>
+                    </label>
+                    <select id="department" formControlName="department"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none bg-white"
+                        [ngClass]="{ 'border-red-300': isFieldInvalid('department') }">
+                        <option value="">Select...</option>
+                        @for (dept of departments; track dept) {
+                        <option [value]="dept">{{ dept }}</option>
+                        }
+                    </select>
+                    @if (isFieldInvalid('department')) {
+                    <p class="mt-1 text-xs text-red-600">Department is required</p>
+                    }
+                </div>
+
+                <div>
+                    <label for="status" class="block text-xs font-medium text-gray-700 mb-1.5">
+                        Status <span class="text-red-500">*</span>
+                    </label>
+                    <select id="status" formControlName="status"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none bg-white">
+                        @for (s of statuses; track s.value) {
+                        <option [value]="s.value">{{ s.label }}</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Role -->
+            <div class="mb-4">
+                <label for="role" class="block text-xs font-medium text-gray-700 mb-1.5">
+                    Job Title / Role <span class="text-red-500">*</span>
+                </label>
+                <input id="role" type="text" formControlName="role"
+                    class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    [ngClass]="{
+                'border-red-300 bg-red-50': isFieldInvalid('role'),
+                'border-gray-300': !isFieldInvalid('role')
+              }" placeholder="Senior Frontend Developer" />
+                @if (isFieldInvalid('role')) {
+                <p class="mt-1 text-xs text-red-600">{{ getFieldError('role') }}</p>
+                }
+            </div>
+
+            <!-- Salary -->
+            <div class="mb-4">
+                <label for="salary" class="block text-xs font-medium text-gray-700 mb-1.5">
+                    Annual Salary (₹) <span class="text-red-500">*</span>
+                </label>
+                <input id="salary" type="number" formControlName="salary"
+                    class="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    [ngClass]="{
+                'border-red-300 bg-red-50': isFieldInvalid('salary'),
+                'border-gray-300': !isFieldInvalid('salary')
+              }" placeholder="1200000" min="0" />
+                @if (isFieldInvalid('salary')) {
+                <p class="mt-1 text-xs text-red-600">{{ getFieldError('salary') }}</p>
+                }
+            </div>
+
+            <!-- Hire Date -->
+            <div class="mb-4">
+                <label for="hireDate" class="block text-xs font-medium text-gray-700 mb-1.5">
+                    Hire Date <span class="text-red-500">*</span>
+                </label>
+                <input id="hireDate" type="date" formControlName="hireDate"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    [ngClass]="{ 'border-red-300': isFieldInvalid('hireDate') }" />
+                @if (isFieldInvalid('hireDate')) {
+                <p class="mt-1 text-xs text-red-600">Hire date is required</p>
+                }
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Panel footer with action buttons -->
+    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center gap-3 shrink-0">
+        <button type="submit" form="employee-form" [disabled]="isSaving()" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5
+                 bg-indigo-600 text-white text-sm font-medium rounded-lg
+                 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed
+                 transition-colors">
+            @if (isSaving()) {
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            }
+            {{ isSaving() ? 'Saving...' : (isEditMode() ? 'Update Employee' : 'Add Employee') }}
+        </button>
+        <button type="button" (click)="close.emit()" [disabled]="isSaving()" class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300
+                 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors">
+            Cancel
+        </button>
+    </div>
+</div>
