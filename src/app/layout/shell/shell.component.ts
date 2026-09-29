@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterOutlet } from '@angular/router';
 
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -9,11 +9,10 @@ import { HeaderComponent } from '../header/header.component';
     selector: 'app-shell',
     // 👇 Angular must statically resolve everything here
     imports: [
-        CommonModule, // safe to include
-        RouterOutlet,
-        SidebarComponent,
-        HeaderComponent
-    ],
+    RouterOutlet,
+    SidebarComponent,
+    HeaderComponent
+],
     templateUrl: './shell.component.html'
 })
 export class ShellComponent {
