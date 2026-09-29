@@ -30,11 +30,10 @@ import { DashboardData, KpiMetric, MonthlySales } from '../../core/models/dashbo
  * 3. computed() creates derived loading messages automatically
  */
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass,CommonModule],
-  templateUrl: './dashboard.component.html',
+    selector: 'app-dashboard',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [NgClass, CommonModule],
+    templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);

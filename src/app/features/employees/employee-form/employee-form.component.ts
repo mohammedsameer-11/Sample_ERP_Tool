@@ -28,11 +28,10 @@ import {
  * - The validator composition (Validators.compose) is explicit and easy to explain
  */
 @Component({
-  selector: 'app-employee-form',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, NgClass],
-  templateUrl: './employee-form.component.html',
+    selector: 'app-employee-form',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [ReactiveFormsModule, NgClass],
+    templateUrl: './employee-form.component.html'
 })
 export class EmployeeFormComponent implements OnChanges {
   /**

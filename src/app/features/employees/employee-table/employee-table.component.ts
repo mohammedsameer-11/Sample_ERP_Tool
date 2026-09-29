@@ -18,11 +18,10 @@ import { Employee, EmployeeFilter } from '../../../core/models/employee.model';
  * 4. OnPush is safe: inputs are immutable references (new array on each service response)
  */
 @Component({
-  selector: 'app-employee-table',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass],
-  templateUrl: './employee-table.component.html',
+    selector: 'app-employee-table',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [NgClass],
+    templateUrl: './employee-table.component.html'
 })
 export class EmployeeTableComponent {
   // All data flows IN via input signals

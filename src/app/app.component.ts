@@ -6,9 +6,8 @@ import { RouterOutlet } from '@angular/router';
  * All real layout lives in ShellComponent, keeping this file clean.
  */
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
-  template: `<router-outlet />`,
+    selector: 'app-root',
+    imports: [RouterOutlet],
+    template: `<router-outlet />`
 })
 export class AppComponent {}

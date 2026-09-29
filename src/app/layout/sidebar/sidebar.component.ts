@@ -19,10 +19,9 @@ interface NavItem {
  * integrates cleanly with the signals mental model.
  */
 @Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive],
-  templateUrl: './sidebar.component.html',
+    selector: 'app-sidebar',
+    imports: [RouterLink, RouterLinkActive],
+    templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent {
   // input() signal — reads as collapsed() in the template

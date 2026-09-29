@@ -10,11 +10,10 @@ import { Product, ProductCategory, PRODUCT_CATEGORIES } from '../../../core/mode
 import { ProductCardComponent } from '../product-card/product-card.component';
 
 @Component({
-  selector: 'app-product-list',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ProductCardComponent],
-  templateUrl: './product-list.component.html',
+    selector: 'app-product-list',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [FormsModule, ProductCardComponent],
+    templateUrl: './product-list.component.html'
 })
 export class ProductListComponent implements OnInit {
   private readonly productService = inject(ProductService);

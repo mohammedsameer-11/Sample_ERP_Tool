@@ -38,11 +38,10 @@ import { EmployeeFormComponent } from '../employee-form/employee-form.component'
  * you'd use with a real HttpClient as well.
  */
 @Component({
-  selector: 'app-employee-list',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, EmployeeTableComponent, EmployeeFormComponent],
-  templateUrl: './employee-list.component.html',
+    selector: 'app-employee-list',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [FormsModule, EmployeeTableComponent, EmployeeFormComponent],
+    templateUrl: './employee-list.component.html'
 })
 export class EmployeeListComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);

@@ -6,18 +6,15 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { HeaderComponent } from '../header/header.component';
 
 @Component({
-  selector: 'app-shell',
-  standalone: true,
-
-  // 👇 Angular must statically resolve everything here
-  imports: [
-    CommonModule,      // safe to include
-    RouterOutlet,
-    SidebarComponent,
-    HeaderComponent
-  ],
-
-  templateUrl: './shell.component.html',
+    selector: 'app-shell',
+    // 👇 Angular must statically resolve everything here
+    imports: [
+        CommonModule, // safe to include
+        RouterOutlet,
+        SidebarComponent,
+        HeaderComponent
+    ],
+    templateUrl: './shell.component.html'
 })
 export class ShellComponent {
 
