@@ -1,24 +1,34 @@
 import {
-  Component, OnInit, inject, signal, computed, DestroyRef,
-  ChangeDetectionStrategy
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  DestroyRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductService } from '../../../core/services/product.service';
-import { Product, ProductCategory, PRODUCT_CATEGORIES } from '../../../core/models/product.model';
+import {
+  Product,
+  ProductCategory,
+  PRODUCT_CATEGORIES,
+} from '../../../core/models/product.model';
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { AnalyticsService } from '../../../core/services/analytics.service';
 
 @Component({
-    selector: 'app-product-list',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, ProductCardComponent],
-    templateUrl: './product-list.component.html'
+  selector: 'app-product-list',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, ProductCardComponent],
+  templateUrl: './product-list.component.html',
 })
 export class ProductListComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly destroyRef = inject(DestroyRef);
-
+  private readonly analytics = inject(AnalyticsService);
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(true);
   readonly selectedCategory = signal<ProductCategory | ''>('');
@@ -35,30 +45,51 @@ export class ProductListComponent implements OnInit {
   setCategory(cat: ProductCategory | ''): void {
     this.selectedCategory.set(cat);
     this.loadProducts();
+
+    this.analytics.trackEvent('inventory_category_filter', {
+      module: 'inventory',
+      action: 'filter',
+      filter_applied: !!cat,
+    });
   }
 
   onAddStock(productId: string, quantity: number): void {
     this.addingProductId.set(productId);
-    this.productService.addStock(productId, quantity)
+
+    this.productService
+      .addStock(productId, quantity)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
-          // Update just the one product in the signal — surgical update
-          this.products.update(list =>
-            list.map(p => p.id === productId ? response.data : p)
+        next: (response) => {
+          this.products.update((list) =>
+            list.map((p) => (p.id === productId ? response.data : p)),
           );
+
           this.addingProductId.set(null);
+
+          this.analytics.trackEvent('inventory_stock_added', {
+            module: 'inventory',
+            action: 'add_stock',
+          });
         },
-        error: () => this.addingProductId.set(null),
+        error: () => {
+          this.addingProductId.set(null);
+
+          this.analytics.trackEvent('inventory_stock_add_failed', {
+            module: 'inventory',
+            action: 'add_stock',
+          });
+        },
       });
   }
 
   private loadProducts(): void {
     this.isLoading.set(true);
-    this.productService.getAll(this.selectedCategory())
+    this.productService
+      .getAll(this.selectedCategory())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: response => {
+        next: (response) => {
           this.products.set(response.data);
           this.isLoading.set(false);
         },
